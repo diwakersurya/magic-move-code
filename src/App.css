@@ -23,9 +23,9 @@ body{
 }
 .controls{
     display:flex;
-    postion:fixed;
-    left:0;
-    bottom:0;
+    position:fixed;
+    left:5px;
+    bottom:5px;
     align-items:start;
      /* border-top:1px solid tomato;
     border-bottom:1px solid tomato; */
