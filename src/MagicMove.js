@@ -13,7 +13,7 @@ function makeChildrenAbsolute(el) {
   })
 
 
-  const allEls =Array.from(el.querySelectorAll('div'))
+  const allEls =Array.from(el.querySelectorAll('pre > div'))
   allEls.forEach(child => {
     const {top, left,height} = child.getBoundingClientRect()
     child.positionStyles = {
