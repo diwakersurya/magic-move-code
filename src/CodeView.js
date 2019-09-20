@@ -59,7 +59,7 @@ for (let index=0;index<tokens.length;index++){
     const firstToken=line[0];
     let midObj={};
     midObj.movable=false;
-    if(firstToken.types.indexOf("comment")!==-1 && firstToken.content.indexOf("mid")!==-1){
+    if(firstToken && firstToken.types.indexOf("comment")!==-1 && firstToken.content.indexOf("mid")!==-1){
                 //check if multiline moveid
                 let midComment=firstToken.content;
                 if(bulkIndex !== null && accumulator[bulkIndex].comment===midComment){
@@ -109,7 +109,7 @@ export default function CodeView({code,language='javascript'}) {
             if(moveConfig.movable){
                 if(moveConfig.bulk){
                     const [start,end]=moveConfig.index;
-                    return <MultiLine moveId={moveConfig.moveId} lines={tokens.slice(start,end)} key={i} identifier={i} getLineProps={getLineProps} getTokenProps={getTokenProps}/>
+                    return <MultiLine moveId={moveConfig.moveId} lines={tokens.slice(start,end+1)} key={i} identifier={i} getLineProps={getLineProps} getTokenProps={getTokenProps}/>
                 }
             return <SingleLine moveId={moveConfig.moveId} line={tokens[moveConfig.index]} key={i} identifier={i} getLineProps={getLineProps} getTokenProps={getTokenProps}/>
 

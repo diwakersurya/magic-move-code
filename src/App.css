@@ -34,16 +34,24 @@ body{
 
 }
 .controls__item{
-        width:32px;
-        height:32px;
+        width:64px;
+        height:64px;
         border:1px solid white;
         cursor:pointer;
+        transition: all 0.3s ease-in-out;
+}
+.controls__item:hover{
+        border-top:1px solid tomato;
+         border-bottom:1px solid tomato;
 }
 .controls__item--start{
             background:url("/play.png") no-repeat center;
 }
 .controls__item--next{
             background:url("/next.png") no-repeat center;
+}
+.controls__item--reset{
+            background:url("/refresh.png") no-repeat center;
 }
 
 pre[class*="language-"] {

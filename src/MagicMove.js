@@ -40,12 +40,14 @@ function findRecieverElement(moveId,element){
 export default function useMagicMove(componentRef1,componentRef2){
     const [styleMap,setStyleMap]=React.useState({});
     const [moveIndex,setMoveIndex]=React.useState(null);
-
     const next=React.useCallback(()=>{
         setMoveIndex(moveIndex+1)
     },[moveIndex])
     const start=React.useCallback(()=>{
         setMoveIndex(0)
+    },[])
+    const reload=React.useCallback(()=>{
+        window.location.reload(false);
     },[])
     React.useEffect(()=>{
         if(componentRef1 && componentRef1.current){
@@ -54,7 +56,6 @@ export default function useMagicMove(componentRef1,componentRef2){
         makeChildrenAbsolute(componentRef2.current)
         }
     },[componentRef1,componentRef2])
-
     React.useEffect(()=>{
         if(componentRef2 && componentRef2.current){
             //componentRef2.current.style.display="none";
@@ -63,9 +64,9 @@ export default function useMagicMove(componentRef1,componentRef2){
               const initialStyleMap=[...parentElement.children].reduce((accumulator,child,index)=>{
                   //check for moveId
                   const moveId=child.dataset.moveid;
-                  if(typeof moveId !== "undefined"){
+                  if(typeof moveId !== "undefined"|| [...child.classList].indexOf('absolute')!==-1){
+                      child.style.opacity=0;
                     accumulator[moveId]=getPositionProps(child);
-
                   }
                    return accumulator;
          },{})
@@ -107,5 +108,5 @@ export default function useMagicMove(componentRef1,componentRef2){
              }
          }
         },[componentRef1,styleMap,moveIndex,componentRef2])
-        return[start,next]
+        return[start,next,reload]
 }
