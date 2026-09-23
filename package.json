@@ -1,33 +1,55 @@
 {
   "name": "magic-move-code",
   "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "prism-react-renderer": "^0.1.7",
-    "prismjs": "^1.17.1",
-    "react": "^16.9.0",
-    "react-dom": "^16.9.0",
-    "react-scripts": "3.1.1"
+  "description": "React component that animates code from one snippet to another, Keynote magic-move style.",
+  "keywords": [
+    "react",
+    "code",
+    "animation",
+    "magic-move",
+    "syntax-highlighting",
+    "prism"
+  ],
+  "license": "MIT",
+  "author": "diwakersurya",
+  "homepage": "https://diwakersurya.github.io/magic-move-code/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diwakersurya/magic-move-code.git"
   },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "dev": "vite example",
+    "build": "tsc -p tsconfig.build.json",
+    "build:site": "vite build example",
+    "test": "vitest run",
+    "typecheck": "tsc",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
   },
-  "eslintConfig": {
-    "extends": "react-app"
+  "peerDependencies": {
+    "react": ">=16.14"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "dependencies": {
+    "prism-react-renderer": "^2.4.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0",
+    "vitest": "^4.1.11"
   }
 }
