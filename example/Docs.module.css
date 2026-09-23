@@ -1,0 +1,8 @@
+.docs pre { font-size: 14px; border-radius: 6px; overflow-x: auto !important; }
+.table { overflow-x: auto; }
+.table table { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 14px; }
+.table th,
+.table td { text-align: left; padding: var(--space-1); border-bottom: 1px solid var(--border); vertical-align: top; }
+.table th { color: var(--fg); }
+.table td { color: var(--muted); }
+.table td code { color: var(--fg); white-space: nowrap; }

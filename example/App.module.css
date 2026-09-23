@@ -1,0 +1,16 @@
+.main { max-width: 1200px; margin: 0 auto; padding: var(--space-3) var(--space-2); }
+.links { display: flex; gap: var(--space-2); }
+/* Panes stay side by side; scroll sideways on narrow screens instead of the page. */
+.demo { overflow-x: auto; }
+.demo pre { font-size: clamp(11px, 1.6vw, 20px); }
+.controls { display: flex; gap: var(--space-1); margin-top: var(--space-2); }
+.controls button {
+  width: 64px;
+  height: 64px;
+  background: transparent;
+  border: 1px solid var(--fg);
+  cursor: pointer;
+  transition: border-color 0.3s ease-in-out;
+}
+.controls button:hover,
+.controls button:focus-visible { border-color: var(--accent); outline: none; }

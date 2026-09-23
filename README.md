@@ -41,31 +41,69 @@ export function Demo() {
 }
 ```
 
-### Markers
+### Markers (default)
 
 Start a line with a marker comment in both snippets. Lines with the same marker move onto each other, in the order they appear in `from`. Markers are stripped when rendered.
 
 - `/*mid-<name>*/` marks one line.
 - `/*mid-bulk-<name>*/` opens a block that ends at the next line starting with the same marker.
 
-Change `mid` with the `markerPrefix` prop.
+Use another prefix with `matcher={matchMarkers('step')}` (create it once, outside the component).
+
+### Without markers
+
+```tsx
+import { MagicMove, matchLines } from 'magic-move-code';
+
+<MagicMove ref={ref} from={from} to={to} matcher={matchLines} />
+```
+
+Identical lines (ignoring indentation) pair up automatically; repeated lines like `}` pair by occurrence. Lines that only exist in `to` are shown from the start, lines that only exist in `from` fade out. Call `ref.current.playAll()` to move everything at once.
+
+### Custom matchers (e.g. an LLM)
+
+A matcher decides which lines move where. It is a plain function, sync or async:
+
+```ts
+type Range = [start: number, end: number];                 // 0-based, inclusive lines
+type Move = { from: Range; to?: Range };                   // no `to` → fades out
+type Plan = { from?: string; to?: string; moves: Move[] }; // from/to optionally replace the rendered code
+type Matcher = (from: string, to: string) => Plan | Promise<Plan>;
+```
+
+```tsx
+const llmMatcher: Matcher = async (from, to) => {
+  const res = await fetch('/api/magic-move', { method: 'POST', body: JSON.stringify({ from, to }) });
+  if (!res.ok) throw new Error(`match failed: ${res.status}`);
+  return { moves: await res.json() }; // [{ "from": [0, 2], "to": [3, 5] }, ...]
+};
+
+<MagicMove from={from} to={to} matcher={llmMatcher} />
+```
+
+- Moves play in array order.
+- Malformed, out-of-bounds or overlapping moves are dropped (`validMoves`).
+- While a promise is pending, or if it rejects, the code renders without moves.
+- Keep the matcher's identity stable (module scope or `useCallback`), or it re-runs on every render.
+
+Built in: `matchMarkers(prefix = 'mid')` (default) and `matchLines`.
 
 ### `<MagicMove>` props
 
-| Prop           | Type          | Default          |                                                  |
-| -------------- | ------------- | ---------------- | ------------------------------------------------ |
-| `from`, `to`   | `string`      | —                | Code for the left and right panes                |
-| `language`     | `string`      | `'jsx'`          | Any language bundled with prism-react-renderer   |
-| `theme`        | `PrismTheme`  | `themes.dracula` | `themes` is re-exported                          |
-| `markerPrefix` | `string`      | `'mid'`          |                                                  |
-| `duration`     | `number`      | `1000`           | ms per move (0 under `prefers-reduced-motion`)   |
-| `className`, `style` |         |                  | Applied to the wrapper                           |
+| Prop                 | Type         | Default          |                                                |
+| -------------------- | ------------ | ---------------- | ---------------------------------------------- |
+| `from`, `to`         | `string`     | —                | Code for the left and right panes              |
+| `matcher`            | `Matcher`    | `matchMarkers()` | Decides which lines move where                 |
+| `language`           | `string`     | `'jsx'`          | Any language bundled with prism-react-renderer |
+| `theme`              | `PrismTheme` | `themes.dracula` | `themes` is re-exported                        |
+| `duration`           | `number`     | `1000`           | ms per move (0 under `prefers-reduced-motion`) |
+| `className`, `style` |              |                  | Applied to the wrapper                         |
 
-Ref methods: `start()` plays the first move, `next()` plays the next one (returns `false` when done), `reset()` puts everything back.
+Ref methods: `start()` plays the first move, `next()` plays the next one (returns `false` when done), `playAll()` plays all remaining moves at once, `reset()` puts everything back.
 
 ### Custom layouts
 
-`CodeView` renders one pane and `useMagicMove(fromRef, toRef, duration)` returns the same `{ start, next, reset }`, so you can place the panes wherever you like.
+`CodeView` renders one pane; pass it `ranges` (each move's `from` or `to`). `useMagicMove(fromRef, toRef, duration)` returns the same handle as the ref, so you can place the panes wherever you like.
 
 ## Develop
 

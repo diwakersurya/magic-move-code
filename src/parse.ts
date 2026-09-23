@@ -1,33 +1,27 @@
 import type { Token } from 'prism-react-renderer';
+import type { Range } from './match.js';
 
 export type Group = { id?: string; lines: Token[][] };
 
-const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const emptyLine: Token[] = [{ types: ['plain'], content: '\n', empty: true }];
 
-/**
- * Splits highlighted lines into groups. A line starting with a `/*<prefix>-<name>*\/`
- * comment is its own movable group; `/*<prefix>-bulk-<name>*\/` opens a group that
- * runs until the next line starting with the same marker. Markers are stripped.
- */
-export function groupLines(tokens: Token[][], prefix = 'mid'): Group[] {
-  const marker = new RegExp(`^/\\*\\s*(${escapeRegExp(prefix)}-(bulk-)?\\S+?)\\s*\\*/$`);
+const clean = (line: Token[]) => {
+  const tokens = line.filter((t) => t.content !== '');
+  return tokens.length ? tokens : emptyLine;
+};
+
+/** Splits highlighted lines into groups; `ranges[i]` becomes the group with id `String(i)`. */
+export function groupLines(tokens: Token[][], ranges: (Range | undefined)[] = []): Group[] {
+  const starts = new Map<number, [end: number, id: number]>();
+  ranges.forEach((r, id) => r && starts.set(r[0], [r[1], id]));
   const groups: Group[] = [];
-  let open: Group | undefined;
-  for (const raw of tokens) {
-    const line = raw.filter((t) => t.content !== '');
-    const match = line[0]?.types.includes('comment') ? line[0].content.match(marker) : null;
-    const rest = match ? line.slice(1) : line;
-    const content = rest.length ? rest : emptyLine;
-    if (open) {
-      open.lines.push(content);
-      if (match?.[1] === open.id) open = undefined;
-    } else if (match) {
-      const group = { id: match[1], lines: [content] };
-      groups.push(group);
-      if (match[2]) open = group;
+  for (let i = 0; i < tokens.length; i++) {
+    const hit = starts.get(i);
+    if (hit) {
+      groups.push({ id: String(hit[1]), lines: tokens.slice(i, hit[0] + 1).map(clean) });
+      i = hit[0];
     } else {
-      groups.push({ lines: [content] });
+      groups.push({ lines: [clean(tokens[i])] });
     }
   }
   return groups;

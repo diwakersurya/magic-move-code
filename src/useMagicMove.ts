@@ -5,15 +5,20 @@ export type MagicMoveHandle = {
   start(): void;
   /** Moves the next marked group; returns false when there is nothing left. */
   next(): boolean;
+  /** Moves everything that is left at once. */
+  playAll(): void;
   /** Puts everything back to the initial state. */
   reset(): void;
 };
 
+/** `[data-moveid]` elements, in play order: numeric ids ascending, then document order. */
 const movables = (root: HTMLElement | null) =>
-  Array.from(root?.querySelectorAll<HTMLElement>('[data-moveid]') ?? []);
+  Array.from(root?.querySelectorAll<HTMLElement>('[data-moveid]') ?? []).sort(
+    (a, b) => (Number(a.dataset.moveid) || 0) - (Number(b.dataset.moveid) || 0),
+  );
 
 /**
- * Animates each `[data-moveid]` element under `fromRef`, in document order, onto the element
+ * Animates each `[data-moveid]` element under `fromRef`, in play order, onto the element
  * with the same id under `toRef`. Targets stay hidden until their source lands on them.
  */
 export function useMagicMove(
@@ -28,10 +33,13 @@ export function useMagicMove(
     timers.current.forEach(clearTimeout);
     timers.current = [];
     step.current = 0;
+    const ids = new Set<string | undefined>();
     for (const el of movables(fromRef.current)) {
+      ids.add(el.dataset.moveid);
       Object.assign(el.style, { transition: '', transform: '', opacity: '', visibility: '' });
     }
-    for (const el of movables(toRef.current)) el.style.opacity = '0';
+    // Targets nothing moves onto stay visible.
+    for (const el of movables(toRef.current)) el.style.opacity = ids.has(el.dataset.moveid) ? '0' : '';
   }, [fromRef, toRef]);
 
   const next = useCallback(() => {
@@ -61,10 +69,14 @@ export function useMagicMove(
     if (step.current === 0) next();
   }, [next]);
 
+  const playAll = useCallback(() => {
+    while (next());
+  }, [next]);
+
   useLayoutEffect(() => {
     reset();
     return () => timers.current.forEach(clearTimeout);
   }, [reset]);
 
-  return useMemo(() => ({ start, next, reset }), [start, next, reset]);
+  return useMemo(() => ({ start, next, playAll, reset }), [start, next, playAll, reset]);
 }
