@@ -13,6 +13,9 @@ test('matchMarkers pairs single and bulk markers and strips them', () => {
       { from: [2, 4], to: [0, 1] },
     ],
   });
+  expect((matchMarkers()('/*mid-a*/x', '/*mid-bulk-a*/y\n/*mid-bulk-a*/z') as Plan).moves).toEqual([
+    { from: [0, 0], to: [0, 1] },
+  ]);
   expect((matchMarkers('mm')('/* mm-a */y', 'z') as Plan).moves).toEqual([{ from: [0, 0], to: undefined }]);
 });
 

@@ -14,3 +14,21 @@
 }
 .controls button:hover,
 .controls button:focus-visible { border-color: var(--accent); outline: none; }
+.tabs {
+  display: flex;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.tab {
+  padding: var(--space-1) var(--space-2);
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+}
+.tab:hover,
+.tab:focus-visible { color: var(--fg); outline: none; }
+.tab[aria-selected='true'] { color: var(--fg); border-bottom-color: var(--accent); }

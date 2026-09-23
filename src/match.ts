@@ -21,26 +21,28 @@ const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 /**
  * Pairs lines that start with the same marker comment: `/*<prefix>-<name>*\/` marks one line,
  * `/*<prefix>-bulk-<name>*\/` opens a block closed by the next line starting with the same marker.
- * Markers are stripped from the rendered code. Moves play in the order markers appear in `from`.
+ * Pairing uses `<name>`, so a single line can move onto a block and vice versa. Markers are
+ * stripped from the rendered code. Moves play in the order markers appear in `from`.
  */
 export function matchMarkers(prefix = 'mid'): Matcher {
-  const marker = new RegExp(`^/\\*\\s*(${escapeRegExp(prefix)}-(bulk-)?\\S+?)\\s*\\*/`);
+  const marker = new RegExp(`^/\\*\\s*(${escapeRegExp(prefix)}-(bulk-)?(\\S+?))\\s*\\*/`);
   const scan = (code: string) => {
     const lines = code.split('\n');
     const spans = new Map<string, Range>();
-    let open: string | undefined;
+    let open: { marker: string; span: Range } | undefined;
     lines.forEach((line, i) => {
       const m = line.match(marker);
       if (!m) return;
       lines[i] = line.slice(m[0].length);
       if (open) {
-        if (m[1] === open) {
-          spans.get(open)![1] = i;
+        if (m[1] === open.marker) {
+          open.span[1] = i;
           open = undefined;
         }
-      } else if (!spans.has(m[1])) {
-        spans.set(m[1], [i, m[2] ? lines.length - 1 : i]);
-        if (m[2]) open = m[1];
+      } else if (!spans.has(m[3])) {
+        const span: Range = [i, m[2] ? lines.length - 1 : i];
+        spans.set(m[3], span);
+        if (m[2]) open = { marker: m[1], span };
       }
     });
     return { code: lines.join('\n'), spans };

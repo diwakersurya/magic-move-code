@@ -2,7 +2,7 @@
 
 React component that animates code from one snippet to another, Keynote magic-move style. ✌️
 
-**[Live demo](https://diwakersurya.github.io/magic-move-code/)**
+**[Live demo](https://diwakersurya.github.io/magic-move-code/)** · **[Playground](https://diwakersurya.github.io/magic-move-code/#playground)**: paste two snippets, click to link lines, copy the marked-up props.
 
 ## Install
 
@@ -43,10 +43,11 @@ export function Demo() {
 
 ### Markers (default)
 
-Start a line with a marker comment in both snippets. Lines with the same marker move onto each other, in the order they appear in `from`. Markers are stripped when rendered.
+Start a line with a marker comment in both snippets. Lines with the same marker name move onto each other, in the order they appear in `from`. Markers are stripped when rendered.
 
 - `/*mid-<name>*/` marks one line.
 - `/*mid-bulk-<name>*/` opens a block that ends at the next line starting with the same marker.
+- Pairing is by `<name>`, so `/*mid-2*/` in `from` can move onto a `/*mid-bulk-2*/` block in `to`.
 
 Use another prefix with `matcher={matchMarkers('step')}` (create it once, outside the component).
 

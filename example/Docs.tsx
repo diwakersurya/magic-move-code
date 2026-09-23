@@ -8,9 +8,23 @@ const magicMoveProps: Row[] = [
   ['from', 'string', 'required', 'Code shown on the left; its marked groups move.'],
   ['to', 'string', 'required', 'Code shown on the right; groups move onto matches here.'],
   ['language', 'string', "'jsx'", 'Any language bundled with prism-react-renderer (js, tsx, css, python, go, …).'],
-  ['theme', 'PrismTheme', 'themes.dracula', <>Pick from the re-exported <code>themes</code> or pass your own.</>],
-  ['matcher', 'Matcher', 'matchMarkers()', <>Decides which lines move where; sync or async. See <a href="#matchers">Matchers</a>.</>],
-  ['duration', 'number', '1000', <>Milliseconds per move; <code>0</code> under prefers-reduced-motion.</>],
+  [
+    'theme',
+    'PrismTheme',
+    'themes.dracula',
+    <>
+      Pick from the re-exported <code>themes</code> or pass your own.
+    </>,
+  ],
+  ['matcher', 'Matcher', 'matchMarkers()', <>Decides which lines move where; sync or async. See Matchers below.</>],
+  [
+    'duration',
+    'number',
+    '1000',
+    <>
+      Milliseconds per move; <code>0</code> under prefers-reduced-motion.
+    </>,
+  ],
   ['className', 'string', '—', 'Applied to the flex wrapper around both panes.'],
   ['style', 'CSSProperties', '—', 'Applied to the flex wrapper around both panes.'],
   ['ref', 'Ref<MagicMoveHandle>', '—', 'Drives the animation, see below.'],
@@ -18,7 +32,14 @@ const magicMoveProps: Row[] = [
 
 const handleMethods: Row[] = [
   ['start()', 'void', '', 'Plays the first move if nothing has moved yet.'],
-  ['next()', 'boolean', '', <>Plays the next move; returns <code>false</code> when nothing is left.</>],
+  [
+    'next()',
+    'boolean',
+    '',
+    <>
+      Plays the next move; returns <code>false</code> when nothing is left.
+    </>,
+  ],
   ['playAll()', 'void', '', 'Plays every remaining move at once.'],
   ['reset()', 'void', '', 'Puts everything back to the initial state.'],
 ];
@@ -27,23 +48,83 @@ const codeViewProps: Row[] = [
   ['code', 'string', 'required', 'Code to highlight.'],
   ['language', 'string', "'jsx'", ''],
   ['theme', 'PrismTheme', 'themes.dracula', ''],
-  ['ranges', '(Range | undefined)[]', '—', <><code>ranges[i]</code> renders as a group with <code>data-moveid="i"</code>.</>],
-  ['className', 'string', '—', <>Added to the <code>&lt;pre&gt;</code>.</>],
-  ['style', 'CSSProperties', '—', <>Merged into the <code>&lt;pre&gt;</code> style.</>],
-  ['ref', 'Ref<HTMLPreElement>', '—', <>Pass to <code>useMagicMove</code>.</>],
+  [
+    'ranges',
+    '(Range | undefined)[]',
+    '—',
+    <>
+      <code>ranges[i]</code> renders as a group with <code>data-moveid="i"</code>.
+    </>,
+  ],
+  [
+    'className',
+    'string',
+    '—',
+    <>
+      Added to the <code>&lt;pre&gt;</code>.
+    </>,
+  ],
+  [
+    'style',
+    'CSSProperties',
+    '—',
+    <>
+      Merged into the <code>&lt;pre&gt;</code> style.
+    </>,
+  ],
+  [
+    'ref',
+    'Ref<HTMLPreElement>',
+    '—',
+    <>
+      Pass to <code>useMagicMove</code>.
+    </>,
+  ],
 ];
 
 const planTypes: Row[] = [
-  ['Matcher', '(from: string, to: string) => Plan | Promise<Plan>', '', 'Called whenever from, to or the matcher changes. Keep it stable: define it outside the component or memoize it.'],
-  ['Plan', '{ from?: string; to?: string; moves: Move[] }', '', <>Optional <code>from</code>/<code>to</code> replace the rendered code (e.g. markers stripped). Moves play in array order.</>],
-  ['Move', '{ from: Range; to?: Range }', '', <>Lines that move from the left pane onto the right; without <code>to</code> they fade out.</>],
+  [
+    'Matcher',
+    '(from: string, to: string) => Plan | Promise<Plan>',
+    '',
+    'Called whenever from, to or the matcher changes. Keep it stable: define it outside the component or memoize it.',
+  ],
+  [
+    'Plan',
+    '{ from?: string; to?: string; moves: Move[] }',
+    '',
+    <>
+      Optional <code>from</code>/<code>to</code> replace the rendered code (e.g. markers stripped). Moves play in array
+      order.
+    </>,
+  ],
+  [
+    'Move',
+    '{ from: Range; to?: Range }',
+    '',
+    <>
+      Lines that move from the left pane onto the right; without <code>to</code> they fade out.
+    </>,
+  ],
   ['Range', '[start: number, end: number]', '', '0-based, inclusive line numbers.'],
 ];
 
 const builtins: Row[] = [
-  ['matchMarkers(prefix?)', 'Matcher', '', <>Default. Pairs lines starting with the same <code>/*mid-…*/</code> marker and strips the markers.</>],
+  [
+    'matchMarkers(prefix?)',
+    'Matcher',
+    '',
+    <>
+      Default. Pairs lines starting with the same <code>/*mid-…*/</code> marker and strips the markers.
+    </>,
+  ],
   ['matchLines', 'Matcher', '', 'Pairs identical lines (ignoring indentation); repeated lines pair by occurrence.'],
-  ['validMoves(moves, fromLines, toLines)', 'Move[]', '', 'What MagicMove runs on every plan: drops malformed, out-of-bounds or overlapping moves.'],
+  [
+    'validMoves(moves, fromLines, toLines)',
+    'Move[]',
+    '',
+    'What MagicMove runs on every plan: drops malformed, out-of-bounds or overlapping moves.',
+  ],
 ];
 
 const examples: { title: string; body: ReactNode; code: string }[] = [
@@ -174,10 +255,12 @@ export function Stacked({ from, to }: { from: string; to: string }) {
   },
 ];
 
-const markers = `/*mid-1*/ const a = 1;      // single line, id "mid-1"
-/*mid-bulk-2*/ function f() {  // block starts, id "mid-bulk-2"
+const markers = `/*mid-1*/ const a = 1;      // single line, name "1"
+/*mid-bulk-2*/ function f() {  // block starts, name "2"
   return a;
-/*mid-bulk-2*/ }               // same marker closes the block`;
+/*mid-bulk-2*/ }               // same marker closes the block
+
+// A single line and a block with the same name pair up too.`;
 
 function Table({ head, rows }: { head: string[]; rows: Row[] }) {
   return (
@@ -193,9 +276,17 @@ function Table({ head, rows }: { head: string[]; rows: Row[] }) {
         <tbody>
           {rows.map(([name, type, fallback, description]) => (
             <tr key={name}>
-              <td><code>{name}</code></td>
-              <td><code>{type}</code></td>
-              {head.length === 4 && <td><code>{fallback}</code></td>}
+              <td>
+                <code>{name}</code>
+              </td>
+              <td>
+                <code>{type}</code>
+              </td>
+              {head.length === 4 && (
+                <td>
+                  <code>{fallback}</code>
+                </td>
+              )}
               <td>{description}</td>
             </tr>
           ))}
@@ -205,7 +296,7 @@ function Table({ head, rows }: { head: string[]; rows: Row[] }) {
   );
 }
 
-export function Docs() {
+export function Usage() {
   return (
     <section className={css.docs}>
       <h2>Install</h2>
@@ -216,33 +307,12 @@ export function Docs() {
 
       <h2>Mark what moves</h2>
       <p>
-        Start a line with a marker comment in both snippets. Lines with the same marker move onto each other, in the
-        order they appear in <code>from</code>. Markers are hidden when rendered. Change the prefix with{' '}
-        <code>matchMarkers('step')</code>, or skip markers with <code>matchLines</code> or your own matcher.
+        Start a line with a marker comment in both snippets. Lines with the same marker name move onto each other, in
+        the order they appear in <code>from</code>. Markers are hidden when rendered. Change the prefix with{' '}
+        <code>matchMarkers('step')</code>, or skip markers with <code>matchLines</code> or your own matcher. The{' '}
+        <a href="#playground">playground</a> writes markers for you.
       </p>
       <CodeView code={markers} />
-
-      <h2>API</h2>
-      <h3>&lt;MagicMove&gt;</h3>
-      <Table head={['Prop', 'Type', 'Default', 'Description']} rows={magicMoveProps} />
-      <h3>MagicMoveHandle (ref)</h3>
-      <Table head={['Method', 'Returns', 'Description']} rows={handleMethods} />
-      <h3 id="matchers">Matchers</h3>
-      <p>
-        A matcher decides which lines move where. Swap it to change the strategy, e.g. markers, line diffing or an
-        LLM call.
-      </p>
-      <Table head={['Type', 'Shape', 'Description']} rows={planTypes} />
-      <p>Built in:</p>
-      <Table head={['Export', 'Returns', 'Description']} rows={builtins} />
-      <h3>&lt;CodeView&gt;</h3>
-      <p>One highlighted pane, for custom layouts. Same styling props as MagicMove.</p>
-      <Table head={['Prop', 'Type', 'Default', 'Description']} rows={codeViewProps} />
-      <h3>useMagicMove(fromRef, toRef, duration = 1000)</h3>
-      <p>
-        Returns a <code>MagicMoveHandle</code> that animates groups under <code>fromRef</code> onto their matches under{' '}
-        <code>toRef</code>.
-      </p>
 
       <h2>Examples</h2>
       {examples.map(({ title, body, code }) => (
@@ -252,6 +322,33 @@ export function Docs() {
           <CodeView code={code} language="tsx" />
         </div>
       ))}
+    </section>
+  );
+}
+
+export function Api() {
+  return (
+    <section className={css.docs}>
+      <h2>&lt;MagicMove&gt;</h2>
+      <Table head={['Prop', 'Type', 'Default', 'Description']} rows={magicMoveProps} />
+      <h2>MagicMoveHandle (ref)</h2>
+      <Table head={['Method', 'Returns', 'Description']} rows={handleMethods} />
+      <h2 id="matchers">Matchers</h2>
+      <p>
+        A matcher decides which lines move where. Swap it to change the strategy, e.g. markers, line diffing or an LLM
+        call.
+      </p>
+      <Table head={['Type', 'Shape', 'Description']} rows={planTypes} />
+      <p>Built in:</p>
+      <Table head={['Export', 'Returns', 'Description']} rows={builtins} />
+      <h2>&lt;CodeView&gt;</h2>
+      <p>One highlighted pane, for custom layouts. Same styling props as MagicMove.</p>
+      <Table head={['Prop', 'Type', 'Default', 'Description']} rows={codeViewProps} />
+      <h2>useMagicMove(fromRef, toRef, duration = 1000)</h2>
+      <p>
+        Returns a <code>MagicMoveHandle</code> that animates groups under <code>fromRef</code> onto their matches under{' '}
+        <code>toRef</code>.
+      </p>
     </section>
   );
 }

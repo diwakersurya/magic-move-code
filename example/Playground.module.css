@@ -1,0 +1,44 @@
+.playground pre { font-size: 14px; border-radius: 6px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+@media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+.editor { display: flex; flex-direction: column; gap: var(--space-1); color: var(--muted); min-width: 0; }
+.editor textarea {
+  width: 100%;
+  resize: vertical;
+  padding: var(--space-2);
+  font: 14px/1.5 ui-monospace, Menlo, Consolas, monospace;
+  color: var(--fg);
+  background: #21222c;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  white-space: pre;
+  tab-size: 2;
+}
+.editor textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.pane { min-width: 0; overflow-x: auto; }
+.pane [data-line] { cursor: pointer; }
+.pane [data-line]:hover { background: #ffffff14; }
+.from, .to { user-select: none; }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); margin: var(--space-2) 0; }
+.toolbar label { color: var(--muted); }
+.playground button,
+.playground select {
+  padding: var(--space-1) var(--space-2);
+  font: inherit;
+  color: var(--fg);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.playground button:hover:not(:disabled),
+.playground button:focus-visible { border-color: var(--accent); outline: none; }
+.playground button:disabled { opacity: 0.5; cursor: default; }
+.links { padding-left: var(--space-3); }
+.links li { margin: var(--space-1) 0; color: var(--fg); }
+.links li::marker { color: var(--muted); }
+.links button { margin-left: var(--space-1); padding: 2px var(--space-1); font-size: 14px; }
+.swatch { display: inline-block; width: 12px; height: 12px; margin-right: var(--space-1); border-radius: 2px; }
+.note { color: var(--muted); font-size: 14px; }
+.preview { overflow-x: auto; }
+.output pre { overflow-x: auto !important; }

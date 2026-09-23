@@ -14,32 +14,35 @@ export type CodeViewProps = {
   style?: CSSProperties;
 };
 
-/** Highlighted code with each range rendered as a `[data-moveid]` element. */
+/** Highlighted code with each range rendered as a `[data-moveid]` element and each line tagged `data-line`. */
 export const CodeView = forwardRef<HTMLPreElement, CodeViewProps>(function CodeView(
   { code, language = 'jsx', theme = themes.dracula, ranges, className, style },
   ref,
 ) {
   return (
     <Highlight code={code} language={language} theme={theme}>
-      {({ className: prismClass, style: prismStyle, tokens, getLineProps, getTokenProps }) => (
-        <pre
-          ref={ref}
-          className={className ? `${prismClass} ${className}` : prismClass}
-          style={{ margin: 0, padding: '1em', ...prismStyle, ...style, overflow: 'visible' }}
-        >
-          {groupLines(tokens, ranges).map((group, i) => (
-            <div key={i} data-moveid={group.id}>
-              {group.lines.map((line, j) => (
-                <div key={j} {...getLineProps({ line })}>
-                  {line.map((token, k) => (
-                    <span key={k} {...getTokenProps({ token })} />
-                  ))}
-                </div>
-              ))}
-            </div>
-          ))}
-        </pre>
-      )}
+      {({ className: prismClass, style: prismStyle, tokens, getLineProps, getTokenProps }) => {
+        let lineNo = 0;
+        return (
+          <pre
+            ref={ref}
+            className={className ? `${prismClass} ${className}` : prismClass}
+            style={{ margin: 0, padding: '1em', ...prismStyle, ...style, overflow: 'visible' }}
+          >
+            {groupLines(tokens, ranges).map((group, i) => (
+              <div key={i} data-moveid={group.id}>
+                {group.lines.map((line, j) => (
+                  <div key={j} data-line={lineNo++} {...getLineProps({ line })}>
+                    {line.map((token, k) => (
+                      <span key={k} {...getTokenProps({ token })} />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </pre>
+        );
+      }}
     </Highlight>
   );
 });

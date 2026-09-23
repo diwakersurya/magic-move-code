@@ -1,109 +1,74 @@
-import { useRef, type RefObject } from 'react';
-import { MagicMove, matchLines, type MagicMoveHandle, type Matcher } from '../src/index.js';
-import { Docs } from './Docs.js';
+import { useEffect, useState } from 'react';
+import { Demos } from './Demos.js';
+import { Api, Usage } from './Docs.js';
+import { Playground } from './Playground.js';
 import css from './App.module.css';
-import play from './play.png';
-import next from './next.png';
-import refresh from './refresh.png';
 
-const from = `/* This is how a module looks like*/
-/* dependencies*/
-/*mid-1*/ import add from "./add";
-/* body */
-/*mid-bulk-3*/ const add5 = x => {
-    return add(x, 5);
-/*mid-bulk-3*/ };
-/* output*/
-/*mid-bulk-2*/ export { add5 };
-/*mid-bulk-2*/
-`;
+const tabs = [
+  { id: 'demos', label: 'Demos' },
+  { id: 'usage', label: 'Usage' },
+  { id: 'api', label: 'API' },
+  { id: 'playground', label: 'Playground' },
+] as const;
 
-const to = `/* This is what your sandbox
- * understands and executes */
-/*mid-1*/const dependencies = ["add"];
+type Tab = (typeof tabs)[number]['id'];
 
-function  fn(dependencies) {
-/*mid-bulk-3*/  const add5 = x => {
-          return add(x, 5);
-/*mid-bulk-3*/  };
-/*mid-bulk-2*/  const output = {"add5":add5};
-/*mid-bulk-2*/  return output;
-}`;
-
-const plainFrom = `function greet(name) {
-  const message = "Hello, " + name;
-  console.log(message);
-  return message;
-}`;
-
-const plainTo = `const greet = (name) => {
-  const message = "Hello, " + name;
-  console.log(message);
-  return message;
-}
-
-greet("world");`;
-
-// Stands in for a real LLM call: same contract, answer arrives later.
-const slowMatcher: Matcher = (from, to) => new Promise((resolve) => setTimeout(() => resolve(matchLines(from, to)), 1500));
-
-function Controls({ handle, all }: { handle: RefObject<MagicMoveHandle | null>; all?: boolean }) {
-  return (
-    <div className={css.controls}>
-      <button aria-label="Reset" onClick={() => handle.current?.reset()}>
-        <img src={refresh} alt="" />
-      </button>
-      <button aria-label="Play" onClick={() => (all ? handle.current?.playAll() : handle.current?.start())}>
-        <img src={play} alt="" />
-      </button>
-      {!all && (
-        <button aria-label="Next" onClick={() => handle.current?.next()}>
-          <img src={next} alt="" />
-        </button>
-      )}
-    </div>
-  );
+/** `#<tab>` or `#<tab>/<data>`; unknown tabs fall back to the first. */
+function readHash(): { tab: Tab; data?: string } {
+  const [id, data] = location.hash.slice(1).split('/');
+  const tab = tabs.find((t) => t.id === id)?.id ?? 'demos';
+  return { tab, data };
 }
 
 export function App() {
-  const ref = useRef<MagicMoveHandle>(null);
-  const plainRef = useRef<MagicMoveHandle>(null);
-  const asyncRef = useRef<MagicMoveHandle>(null);
+  const [initial] = useState(readHash);
+  const [tab, setTab] = useState<Tab>(initial.tab);
+
+  useEffect(() => {
+    const onHash = () => setTab(readHash().tab);
+    addEventListener('hashchange', onHash);
+    return () => removeEventListener('hashchange', onHash);
+  }, []);
+
   return (
     <main className={css.main}>
       <h1>Magic Move Code</h1>
-      <p>Animate code from one snippet to another, Keynote magic-move style. Press play, then next.</p>
+      <p>Animate code from one snippet to another, Keynote magic-move style.</p>
       <div className={css.links}>
         <a href="https://github.com/diwakersurya/magic-move-code">GitHub</a>
         <a href="https://www.npmjs.com/package/magic-move-code">npm</a>
       </div>
 
-      <section className={css.demo}>
-        <MagicMove ref={ref} from={from} to={to} style={{ marginTop: 32 }} />
-        <Controls handle={ref} />
-      </section>
+      <nav className={css.tabs} role="tablist" aria-label="Sections">
+        {tabs.map((t) => (
+          <a
+            key={t.id}
+            id={`tab-${t.id}`}
+            href={`#${t.id}`}
+            role="tab"
+            aria-selected={tab === t.id}
+            aria-controls={`panel-${t.id}`}
+            className={css.tab}
+          >
+            {t.label}
+          </a>
+        ))}
+      </nav>
 
-      <section className={css.demo}>
-        <h2>Without markers</h2>
-        <p>
-          Pass <code>{'matcher={matchLines}'}</code> and identical lines pair up automatically. <code>playAll()</code> moves them
-          all at once.
-        </p>
-        <MagicMove ref={plainRef} from={plainFrom} to={plainTo} matcher={matchLines} />
-        <Controls handle={plainRef} all />
-      </section>
-
-      <section className={css.demo}>
-        <h2>Async matcher</h2>
-        <p>
-          A matcher can return a promise, e.g. from an LLM call. This one waits 1.5 s before answering; until then the
-          code renders as-is.
-        </p>
-        <MagicMove ref={asyncRef} from={plainFrom} to={plainTo} matcher={slowMatcher} />
-        <Controls handle={asyncRef} all />
-      </section>
-
-      <Docs />
+      {/* Panels stay mounted so the playground keeps its state across tab switches. */}
+      {tabs.map((t) => (
+        <div key={t.id} id={`panel-${t.id}`} role="tabpanel" aria-labelledby={`tab-${t.id}`} hidden={tab !== t.id}>
+          {t.id === 'demos' && <Demos />}
+          {t.id === 'usage' && <Usage />}
+          {t.id === 'api' && <Api />}
+          {t.id === 'playground' && (
+            <Playground
+              initial={initial.tab === 'playground' ? initial.data : undefined}
+              active={tab === 'playground'}
+            />
+          )}
+        </div>
+      ))}
     </main>
   );
 }
